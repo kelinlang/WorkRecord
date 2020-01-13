@@ -1,9 +1,10 @@
-
+[]()
 
 # 参考资料
 
 - [FFmpeg时间戳详解](https://cloud.tencent.com/developer/article/1409507)
 - [详解FFplay音视频同步](https://juejin.im/post/5cad790f51882518b87e140)
+- [ffplay源码分析4-音视频同步](https://www.cnblogs.com/leisure_chn/p/10307089.html)
 
 #  ffplay流程
 
@@ -53,6 +54,7 @@
     - `pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);`
       - **tb**:输入音频流中的时间基
   - 数据放入PCM Frame队列
+  
 - **stream_open** 初始化 **Clock**
   - **Video clock**
     - pts = 执行初始化时的时间戳
@@ -133,4 +135,13 @@
 
   - **display 块流程**
 
-- 
+- **sdl_audio_callback**  sdl播放音频的回调
+
+  - 保存回调时间戳
+  - audio_decode_frame
+    - synchronize_audio
+      - 非音频作为主时钟
+        - 获取音频时钟和主时钟差值
+        - 计算并返回同步需要的采样数
+      - 
+
