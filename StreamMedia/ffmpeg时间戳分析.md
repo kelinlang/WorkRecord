@@ -61,11 +61,30 @@
       - av_init_packet
         - 时间戳设置无效值
       - read_packet : AVInputFormat
-      - 取得第一个dts，开始时间，当前dts
+      - update_wrap_reference 
+        - 取得第一个dts，开始时间，当前dts
       - wrap_timestamp  : **处理时间戳，如果时间戳预测溢出，则修改时间戳在一个范围内**
       - force_codec_ids
       - 如果use_wallclock_as_timestamps为1(默认值为0)，**重新设置pts和dts，**
         - `pkt->dts = pkt->pts = av_rescale_q(av_gettime(), AV_TIME_BASE_Q, st->time_base);`
+    - parse_packet
+      - AVPacket **out_pkt**：初始化
+      - av_parser_parse2
+      - 修改显示时长
+      - 设置显示时间戳和解码时间戳
+      - compute_pkt_fields：重设**out_pkt**中的时间戳
+        - 如果是视频&&有效的解码时间戳 
+          - 如果显示时间戳等于解码时间戳&& 上一次解码时间戳有效
+          - 修改上一次解码时间戳
+          - 判断处理xxx
+        - 满足标记条件&&显示时间戳有效
+          - 设置解码时间戳为无效值
+        - 如果有B帧
+          - 设置有B帧标记
+      - ff_packet_list_put：**out_pkt** 放进列表
+    - ff_packet_list_get
+    - 调试模式 并且TS调试模式
+      - 打印时间戳
 - AVStream 
   - avformat_new_stream 初始化方法
     - avpriv_set_pts_info**(st, 33, 1, 90000)**; 设置时间基
@@ -78,14 +97,25 @@
     - avformat_new_stream  **初始化流** 
     - avpriv_set_pts_info(st, 64, 1, 1200000);//**初始化裸流的时间基：1/1200000**
   - ff_raw_read_partial_packet
-    - av_new_packet   时间戳设置无效值
+    - av_new_packet   **时间戳设置无效值**
     - avio_read_partial 读取裸流数据
     - av_shrink_packet
-- avpriv_set_pts_info  **设置时间基函数**
-  - **rtsp:**   
-    - avpriv_set_pts_info(st, 32, 1, par->sample_rate);
-    - avpriv_set_pts_info(st, 32, 1, i);
+- **avpriv_set_pts_info**  **设置时间基函数**
+  - **rtsp.c  sdp:**   
+    - 音频：avpriv_set_pts_info(st, 32, 1, par->sample_rate);
+    - 视频：avpriv_set_pts_info(st, 32, 1, i);
   - **裸流视频：**avpriv_set_pts_info(st, 64, 1, 1200000)
+
+
+
+- rtsp.c   rtpdec.c  AVInputFormat
+  - ff_rtsp_fetch_packet
+    - ff_rdt_parse_packet
+    - ff_rtp_parse_packet
+      - rtp_parse_one_packet
+        - rtp_parse_queued_packet
+        - handler->parse_packet
+        - finalize_packet 处理显示时间戳
 
 
 
