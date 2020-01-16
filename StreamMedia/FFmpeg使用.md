@@ -8,7 +8,11 @@
     ffprobe -show_frames -select_streams v /home/kelinlang/workspace/testFiles/E1.mp4 | grep pkt_pts  
     ```
 
-    - 
+  - 判断是否有B帧
+  
+    - ```text
+      ffprobe -v error -show_frames gemfield.mp4 
+      ```
 
 
 
@@ -30,4 +34,19 @@
   - 删除安装目录下面的ffmpeg相关的动态库，安装默认不带调试信息的库文件
     - 
   - `sudo cp ./*/*.so* /usr/local/lib`
+
+
+
+# git 命令
+
+- 保存用户名和密码
+  - git config --global credential.helper store  
+
+
+
+
+
+# VIM
+
+- 
 
