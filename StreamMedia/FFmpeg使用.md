@@ -8,6 +8,8 @@
     ffprobe -show_frames -select_streams v /home/kelinlang/workspace/testFiles/E1.mp4 | grep pkt_pts  
     ```
 
+  - ffprobe -show_frames -select_streams a ../testFiles/video-h265.mkv > ../log/vdd_vddd_audio.tst 2>&1
+  
   - 判断是否有B帧
   
     - ```text
