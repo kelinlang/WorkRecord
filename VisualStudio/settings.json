@@ -1,0 +1,60 @@
+{
+    "editor.fontSize": 21,
+    "editor.fontFamily": "\"微软雅黑\",",
+    "editor.fontWeight": "500",
+    // "window.zoomLevel": 1.0,
+    
+    
+    "workbench.colorTheme": "Atom One Light",
+    "workbench.colorCustomizations": {
+    "[Atom One Light]": {
+            "editor.background": "#C7EDCC",   
+            "editor.foreground": "#000000", 
+            
+            
+            "menu.background":"#FFFFFF",
+            "statusBar.background":"#FFFFFF",
+
+            "sideBar.background": "#FFFFFF",
+            "sideBar.foreground": "#000000",
+            
+    
+            "activityBar.background": "#FFFFFF",
+             "activityBar.foreground": "#000000",  
+
+
+            //  "sideBar.background": "#FFFFFF",
+            //  "sideBar.foreground": "#000000",
+        },
+        "button.background": "#FFFFFF",
+        "button.foreground":"#000000",
+        "sideBar.background": "#FFFFFF",
+        "sideBar.foreground": "#000000",
+        // "terminal.integrated.fontSize": 7,
+    },
+    // "git.path": "C:/Program Files/Git/bin/git.exe",
+    "terminal.integrated.fontSize": 19,
+    "terminal.integrated.fontWeight": "600",
+//"terminal.integrated.fontFamily": "Lucida Console", //字体设置
+    "terminal.integrated.fontFamily": "Consolas", //字体设置
+    // "debug.console.fontSize": 6,
+    "terminal.integrated.fontWeightBold": "normal",
+    //"terminal.integrated.fontWeightBold":"100",
+    "terminal.integrated.lineHeight":1.1,
+    "window.zoomLevel": 0,
+    //"terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe",
+    "terminal.integrated.shell.windows": "C:\\Users\\kiloview\\.babun\\cygwin\\bin\\bash.exe",
+
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/app/driver",
+        "${workspaceFolder}/app/include",
+        "${workspaceFolder}/app/Gizwits",
+        "${workspaceFolder}/app/include/driver",
+        "${workspaceFolder}/include",
+        "${workspaceFolder}/app/Utils"
+        
+    ],
+    "clang.diagnostic.enable": false,
+}

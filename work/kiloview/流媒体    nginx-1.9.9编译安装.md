@@ -126,3 +126,11 @@ git rm -r --cached
 R:     199;          G:    237;       B:204;
 
 颜色代码是： #C7EDCC
+
+./configure --toolchain=msvc --target-os=win64 --enable-ffplay --enable-gpl   --enable-static --enable-shared  --enable-debug  --disable-x86asm  --extra-cflags=-g --extra-ldflags=-g  --enable-nonfree --enable-libx264  --extra-cflags="-I../build/include"  --extra-ldflags="-LIBPATH:../build/lib"  --prefix=./build
+
+
+./ffmpeg -re -i '/home/kelinlang/workspace/testFiles/E1.mp4' -c copy -f mpegts "srt://192.168.2.169:12500?pkt_size=1316?passphrase='password321'&mode=listener"
+./ffmpeg -fflags +genpts -re -i '/home/kelinlang/workspace/testFiles/E1.mp4' -map 0:0 -map 0:1 -c:v copy -c:a libfdk_aac -profile:a aac_he_v2  -metadata service_provider='TEST' -metadata service_name='TEST-CH' -mpegts_transport_stream_id '0x0001' -mpegts_service_id '0x0bba' -mpegts_start_pid '0x0bba' -f mpegts "srt://192.168.2.169:12500?pkt_size=1316?passphrase='password321'&mode=listener"
+./ffplay -fflags nobuffer "srt://192.168.2.169:12500/live/test?paket_size=1316?passphrase='password321'&mode=caller"
+
