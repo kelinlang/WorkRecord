@@ -53,7 +53,8 @@ ffmpeg -re -i E:\YunvaProject\视频文件\VID_20190104_111210.mp4 -f flv rtmp:/
 
 ./ffmpeg -re -i /tmp/workspace/testFiles/E1h265.mp4  -c copy -f flv rtmp://192.168.2.199:1935/live/test
 
-./ffmpeg -re -i /home/kelinlang/workspace/testFiles/E1h265.mp4  -c copy -f rtsp rtsp://192.168.2.199:5555/live/test
+./ffmpeg -re -i /home/kelinlang/workspace/testFiles/E1h265.mp4  -c copy -f rtsp rtsp://192.168.2.198:5555/live/test
+./ffmpeg -re -i /home/kelinlang/workspace/testFiles/E1.mp4  -c copy -f rtsp rtsp://192.168.2.198:5555/live/test
 ./ffmpeg -re -i /home/kelinlang/workspace/testFiles/E1h265.mp4  -c copy -f rtsp rtsp://192.168.2.162:5555/live/test
 ./ffmpeg -re -i /home/kelinlang/workspace/testFiles/E1.mp4  -c copy -f rtsp rtsp://192.168.2.162:5555/live/test
 ./ffmpeg -re -i /home/kelinlang/workspace/testFiles/E1h265.mp4  -c copy -f rtsp rtmp://192.168.2.162:1936/live/test
@@ -77,7 +78,10 @@ ffmpeg -re -i rtsp://192.168.3.38/ch01 -c:v libx265 -profile:v main -c:a aac -b:
 
 ./ffmpeg -re -i /home/kelinlang/workspace/testFiles/E1h265.mp4 -vcodec copy -f mpegts "udp://192.168.2.200:1234?pkt_size=1316"  
 
-udp://@192.168.2.200:1234
+./ffmpeg -re -i /home/kelinlang/workspace/testFiles/test1.ts  -c copy -f mpegts udp://192.168.2.198:55555?pkt_size=1316
+
+
+udp://@192.168.2.34:1234
 
 端口查看命令：netstat -ntpl
 
@@ -90,6 +94,7 @@ udp://@192.168.2.200:1234
 ./ffplay rtmp://192.168.2.162:1935/live/test
 ./ffplay rtsp://192.168.2.162:5555/live/test
 ./ffplay http://192.168.2.162:8080/hls/test.m3u8
+./ffpaly rtsp://192.168.2.199/record/live/0/E1.mp4
 
 转码
 ffmpeg -i /home/kelinlang/workspace/testFiles/E1.mp4 -c:v libx265 -b:v 5000k /home/kelinlang/workspace/testFiles/E1_h265_test.mp4
@@ -134,3 +139,34 @@ R:     199;          G:    237;       B:204;
 ./ffmpeg -fflags +genpts -re -i '/home/kelinlang/workspace/testFiles/E1.mp4' -map 0:0 -map 0:1 -c:v copy -c:a libfdk_aac -profile:a aac_he_v2  -metadata service_provider='TEST' -metadata service_name='TEST-CH' -mpegts_transport_stream_id '0x0001' -mpegts_service_id '0x0bba' -mpegts_start_pid '0x0bba' -f mpegts "srt://192.168.2.169:12500?pkt_size=1316?passphrase='password321'&mode=listener"
 ./ffplay -fflags nobuffer "srt://192.168.2.169:12500/live/test?paket_size=1316?passphrase='password321'&mode=caller"
 
+./ffmpeg -y -vsync 0 -hwaccel cuvid -c:v libx265 -i ./video-h265.mkv - -c:a copy -c:v h264_nvenc -b:v 5M ./video-h264-1.mp4  
+
+./ffmpeg -i ../testFiles/E1.mp4 -vcodec libx264 -preset ultrafast -b:v 2000k E1_2000k.mp4
+
+./ffmpeg   -i ../testFiles/video-h265.mkv -vcodec libx264   ./testFiles/video-h264-1.mp4
+
+./ffmpeg -i ../testFiles/E1.mp4 -c:v libx264 -x264opts "bframes=3:b-adapt=0" -g 50 -sc_threshold 0 ../testFiles/E1_had_b.mp4
+
+./ffmpeg -i ../../../testFiles/E1.mp4 -c:v libx264 -x264opts "bframes=10:b-adapt=0" -b:v 3000k -maxrate 3000k -minrate 3000k  -nal-hrd cbr -g 50 -sc_threshold 0 -t 60 ../../../testFiles/E1_had_b.ts
+./ffprobe -v quiet -show_frames ../../../testFiles/E1_had_b.ts | grep "pict_type=B" | wc -l
+
+
+./ffmpeg -i ../../../testFiles/E1.mp4 -c:v libx264 -x264-params level=30:bframes=0:weightp=0:\
+cabac=0:ref=1:vbv-maxrate=768:vbv-bufsize=2000:analyse=all:me=umh:\
+no-fast-pskip=1:subq=6:8x8dct=0:trellis=0 ../../../testFiles/E1_x264_params.mp4
+
+./ffmpeg -i ../../../testFiles/E1.mp4 -vf "split [main][tmp]; [tmp] crop=iw:ih/2:0:0, vflip [flip]; [main][flip] overlay=0:H/2" ../../../testFiles/E1_test_filter.mp4
+
+./ffmpeg -re -stream_loop -1 -i ../testFiles/test1_ts_with_no_b.ts  -c copy -f mpegts udp://192.168.2.90:1234?pkt_size=1316
+./ffmpeg -re -stream_loop -1 -i ../testFiles/test1.ts  -c copy -f rtsp rtsp://192.168.2.198:5555?live/test
+./ffmpeg -re -stream_loop -1 -i ../testFiles/test1.ts  -c copy -f flv rtmp://192.168.2.198:1935?live/test
+./ffmpeg -re  -stream_loop -1 -i ../testFiles/test1.ts -vcodec libx264 -profile:v baseline -level 3.1 -s 1920x1080 -an -y  ../testFiles/test1_ts_with_no_b.ts
+./ffprobe -v quiet -show_frames ../testFiles/test1_ts_with_no_b.ts | grep "pict_type=B" | wc -l
+
+
+./ffmpeg -i ../testFiles/leishen.wav -codec:a libfdk_aac -vbr 3 ../testFiles/leishen.mp4
+
+./ffmpeg -i ../testFiles/E1.mp4 -vf "split [main][tmp]; [tmp] crop=iw:ih/2:0:0, vflip [flip]; [main][flip] overlay=0:H/2" ../testFiles/E1_with_crop_and_vflip.mp4
+./ffmpeg -i ../testFiles/E1.mp4 -vf scale=640:360 ../testFiles/E1_640_360.mp4
+
+ffplay -max_delay 500000 -rtsp_transport udp rtsp://192.168.2.198:5555/live/test
