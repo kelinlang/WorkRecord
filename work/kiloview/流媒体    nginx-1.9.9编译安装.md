@@ -109,7 +109,10 @@ FFmpeg编译
 ./configure --enable-shared --enable-static   --enable-ffplay  --prefix=/home/kelinlang/workspace/install/ffmpeg
 ./configure --enable-shared --enable-static   --enable-ffplay  --prefix=/home/kelinlang/workspace/install/ffmpeg3.3
 ./configure --enable-shared --enable-static   --enable-ffplay  --prefix=/home/kelinlang/workspace/install/ffmpegDev/3.3
-./configure --enable-shared --enable-static   --enable-ffplay --enable-libx264 --enable-libx265  --enable-gpl --prefix=/home/kelinlang/workspace/install/ffmpegDev/master
+
+./configure --enable-shared --enable-static   --enable-ffplay --enable-libx264 --enable-libx265 --enable-gpl --enable-libsrt
+
+
 ./configure --enable-gpl --enable-libx264  --enable-libx265  --enable-static --enable-shared  --enable-ffplay --disable-yasm --prefix=/home/kelinlang/workspace/install/ffmpeg3.3.6
 ./configure --enable-gpl --enable-libx264  --enable-libx265  --enable-ffplay --disable-yasm --prefix=/home/kelinlang/workspace/install/ffmpeg3.3.6
 
@@ -158,6 +161,11 @@ no-fast-pskip=1:subq=6:8x8dct=0:trellis=0 ../../../testFiles/E1_x264_params.mp4
 ./ffmpeg -i ../../../testFiles/E1.mp4 -vf "split [main][tmp]; [tmp] crop=iw:ih/2:0:0, vflip [flip]; [main][flip] overlay=0:H/2" ../../../testFiles/E1_test_filter.mp4
 
 ./ffmpeg -re -stream_loop -1 -i ../testFiles/test1_ts_with_no_b.ts  -c copy -f mpegts udp://192.168.2.90:1234?pkt_size=1316
+./ffmpeg -re -stream_loop -1 -i ../testFiles/test1_ts_with_no_b.ts  -c copy -f mpegts udp://192.168.2.66:1234?pkt_size=1316
+./ffmpeg -re -stream_loop -1 -i ../testFiles/test1_ts_with_no_b.ts  -c copy -f mpegts udp://192.168.2.66:1235?pkt_size=1316
+
+./ffplay -protocol_whitelist “file,http,https,rtp,udp,tcp,tls” udp://192.168.2.66:1234?pkt_size=1316
+
 ./ffmpeg -re -stream_loop -1 -i ../testFiles/test1.ts  -c copy -f rtsp rtsp://192.168.2.198:5555?live/test
 ./ffmpeg -re -stream_loop -1 -i ../testFiles/test1.ts  -c copy -f flv rtmp://192.168.2.198:1935?live/test
 ./ffmpeg -re  -stream_loop -1 -i ../testFiles/test1.ts -vcodec libx264 -profile:v baseline -level 3.1 -s 1920x1080 -an -y  ../testFiles/test1_ts_with_no_b.ts
@@ -170,3 +178,17 @@ no-fast-pskip=1:subq=6:8x8dct=0:trellis=0 ../../../testFiles/E1_x264_params.mp4
 ./ffmpeg -i ../testFiles/E1.mp4 -vf scale=640:360 ../testFiles/E1_640_360.mp4
 
 ffplay -max_delay 500000 -rtsp_transport udp rtsp://192.168.2.198:5555/live/test
+
+
+./ffmpeg -re -i '/home/kelinlang/workspace/testFiles/E1.mp4' -c copy -f mpegts "srt://192.168.2.66:12500?pkt_size=1316&mode=listener"
+./ffmpeg -re -i '/home/kelinlang/workspace/testFiles/E1.mp4' -c copy -f mpegts "srt://192.168.0.18:10000?pkt_size=1316&mode=listener"
+./ffmpeg -re -i '/home/kelinlang/workspace/testFiles/E1.mp4' -c copy -f mpegts "srt://192.168.2.66:10000?pkt_size=1316&mode=caller"
+
+ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy \
+    -f mpegts 'srt://192.168.0.18:10080?streamid=#!::h=live/livestream,m=publish'
+	
+	./ffplay rtmp://192.168.0.18/live/livestream
+	
+	./ffplay 'srt://192.168.0.18:10080?streamid=#!::h=live/livestream,m=request'
+
+./ffplay -fflags nobuffer "srt://192.168.2.169:12500/live/test?paket_size=1316&mode=caller"
