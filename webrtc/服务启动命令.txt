@@ -1,0 +1,81 @@
+3.8 安装Nginx
+默认安装目录：/usr/local/nginx
+
+启动：sudo /usr/local/nginx/sbin/nginx
+
+停止：sudo /usr/local/nginx/sbin/nginx -s stop
+
+重新加载配置文件：sudo /usr/local/nginx/sbin/nginx -s reload
+
+
+4.1 coturn 打洞+中继服务器
+加用户：sudo turnadmin -a -u kelinlang -r http://192.168.0.103 -p 123456
+加管理员 sudo bin/turnadmin -A -u kelinlang -p 123456
+启动
+sudo turnserver -L 192.168.0.103 -a -u kelinlang:123456 -v -f -r http://192.168.0.103:3478 &
+sudo lsof -i:3478
+
+4.2 collider 信令服务器
+sudo nohup $GOPATH/bin/collidermain -port=8089 -tls=false -room-server="http://192.168.192.128:8090" &
+sudo nohup $GOPATH/bin/collidermain -port=8089 -tls=false -room-server="http://192.168.0.103:8090" &
+
+
+4.3 apprtc 房间服务器
+sudo nohup /home/kelinlang/workspace/WebrtcDev/server/google_appengine/dev_appserver.py --host=192.168.0.103 --port=8090 /home/kelinlang/workspace/WebrtcDev/server/apprtc/out/app_engine --skip_sdk_update_check &
+配置
+sudo gedit   /home/kelinlang/workspace/WebrtcDev/server/apprtc/src/app_engine/constants.py
+此时可以通过谷歌浏览器访问测试：
+http://192.168.192.128:8090/
+http://192.168.0.103:8090/
+
+4.4.2 Web代理
+配置web服务器
+修改配置文件：sudo gedit /usr/local/nginx/conf/conf.d/apprtc-https-proxy.conf
+
+upstream roomserver {
+   server 192.168.192.128:8090;
+}
+server {
+    listen 443 ssl;
+    ssl_certificate /home/kelinlang/workspace/WebrtcDev/server/cert/cert.pem;
+    ssl_certificate_key /home/kelinlang/workspace/WebrtcDev/server/key.pem; 
+    charset utf-8;
+    # ip地址或者域名
+    server_name 192.168.192.128;
+    location / {
+        # 转向代理的地址
+        proxy_pass http://roomserver$request_uri;
+        proxy_set_header Host $host;
+    }
+}
+
+
+4.4.3 配置websocket代理
+
+完整配置文件：sudo gedit /usr/local/nginx/conf/conf.d/apprtc-websocket-proxy.conf
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}
+upstream websocket {
+    server 192.168.0.3:8089;
+}
+
+server {
+    listen 8088 ssl;
+    ssl_certificate /home/lqf/cert/cert.pem;
+    ssl_certificate_key /home/lqf/cert/key.pem;
+
+    server_name 192.168.0.103;
+    location /ws {
+        proxy_pass http://websocket;
+        proxy_http_version 1.1;
+        proxy_connect_timeout 4s; #配置点1
+        proxy_read_timeout 6000s; #配置点2，如果没效，可以考虑这个时间配置长一点
+        proxy_send_timeout 6000s; #配置点3
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+    }
+}
+

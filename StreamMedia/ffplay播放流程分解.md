@@ -24,12 +24,20 @@
 
 - **read_thread:** 读取数据线程：stream_open中开启
 
+  - avformat_alloc_context
+  - avformat_open_input
+  - avformat_find_stream_info
   - 调用：stream_component_open
-    - 调用：audio_open	
-      - 设置回调：sdl_audio_callback
-    - 开启音频解码线程： **audio_thread**
-    - 开启视频解码线程：**video_decoder**
-    - 开启字幕解码线程：**subtitle_thread**
+    - 寻找Codec
+    - 创建解码线程
+      - 音频
+        - 调用：audio_open	
+          - 设置回调：sdl_audio_callback
+        - 开启音频解码线程： **audio_thread**
+      - 视频
+        - 开启视频解码线程：**video_decoder**
+      - 字幕
+        - 开启字幕解码线程：**subtitle_thread**
   - 循环读取输入流
     - 丢弃不在用户指定范围内的帧
     - 音视频数据放入对应的队列
@@ -37,6 +45,7 @@
   
 
 - **video_decoder**  解码线程 循环
+  
   - 调用：get_video_frame
     - 调用：decoder_decode_frame
       - 队列去视频数据解码，返回解码后数据
@@ -45,8 +54,8 @@
     - **pts** = 解码后AVFrame中**pts*** av_q2d**(tb**)
       - **tb**:输入视频流中的时间基
   - 调用：queue_picture
-    - 数据放入YUV Frame队列
-
+  - 数据放入YUV Frame队列
+  
 - **audio_thread** 解码线程 循环
   - 调用：decoder_decode_frame
     - 队列去视频数据解码，返回解码后数据
@@ -145,3 +154,35 @@
         - 计算并返回同步需要的采样数
       - 
 
+- **存放AVPacket队列分析**：链表实现
+
+  typedef struct PacketQueue {
+      MyAVPacketList *first_pkt, *last_pkt;
+      int nb_packets;
+      int size;
+      int64_t duration;
+      int abort_request;
+      int serial;//初始化为0，后面累加
+      SDL_mutex *mutex;
+      SDL_cond *cond;
+  } PacketQueue;
+
+- **存放AVFrame队列分析**：数组实现
+
+  `typedef struct FrameQueue {`
+      `Frame queue[FRAME_QUEUE_SIZE];`//数组来实现队列
+      `int rindex;//读索引`
+      `int windex;//写索引`
+      `int size;` 
+      `int max_size;`
+      `int keep_last;//是否保存最后的，音频和视频都需要`
+      `int rindex_shown;//读索引 显示`
+      `SDL_mutex *mutex;`
+      `SDL_cond *cond;`
+      `PacketQueue *pktq;`
+  `} FrameQueue;
+
+  - frame_queue_init : 初始化方法
+  - frame_queue_destory：销毁方法
+  - frame_queue_signal：信号方法，通知等待的那边
+  - frame_queue_peek：获取当前显示的
