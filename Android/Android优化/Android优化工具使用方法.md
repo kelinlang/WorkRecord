@@ -1,0 +1,21 @@
+- Mat
+  - **Histogram**
+    - 列出内存中的对象，对象的个数以及大小。
+  - **Dominator Tree**
+    - 列出最大的对象以及其依赖存活的Object （大小是以Retained Heap为标准排序的）。
+  - **Top Consumers**
+    - 通过图形列出最大的object。
+  - **Shallow heap**
+    - 无序列表1 Shallow size就是对象本身占用内存的大小，不包含其引用的对象。针对非数组类型的对象，它的大小就是对象与它所有的成员变量大小的总和。当然这里面还会包括一些java语言特性的数据存储单元。针对数组类型的对象，它的大小是数组元素对象的大小总和。
+  - **Retained Heap**
+    - 它表示如果一个对象被释放掉，那会因为该对象的释放而减少引用进而被释放的所有的对象（包括被递归释放的）所占用的heap大小。(间接引用的含义：A->B->C, C就是间接引用。不过，释放的时候还要排除被GC Roots直接或间接引用的对象。他们暂时不会被被当做Garbage）
+- Android studio + mat分析内存泄漏
+  - 加入有A.B界面，A进入B,再返回，怀疑B有内存泄漏
+    - 操作从A进入B,返回A
+    - Initate GC按钮手动触发GC
+    - Dump Java Heap按钮导出.hprof文件
+    - sdk/platform-tools/hprof-conv.exe -z memory-20200403T225931.hprof  memory-20200403T225931_mat.hprof  转换成MAT能打开的hprof
+    - 点击Histogram
+    - 搜索具体页面的类或者点击QQL图标输入select * from instanceof android.app.Activity，然后点击红色感叹号图标
+    - 
+
